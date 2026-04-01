@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from .text import lexical_richness, typo_rate
 from .temporal import posting_regularity
+from .ai_detection import average_ai_score
 
 
 def extract_features(user_data):
@@ -29,6 +30,7 @@ def extract_features(user_data):
         "posting_regularity_std": posting_regularity(timestamps),
         "has_description": int(bool(user.get("description"))),
         "desc_length": len(user.get("description", "") or ""),
+        "avg_ai_score": average_ai_score(texts),
     }
 
 
