@@ -1,0 +1,14 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code settings
+.vscode/
+
+# Models
+*.pkl
+models/
+
+# Github
+.github/copilot-instructions.md
