@@ -12,3 +12,5 @@ models/
 
 # Github
 .github/copilot-instructions.md
+
+predictions.txt
