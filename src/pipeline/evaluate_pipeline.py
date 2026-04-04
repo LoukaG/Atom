@@ -8,6 +8,7 @@ from sklearn.metrics import (
 from src.data.loader import load_dataset, group_posts_by_user
 from src.features.builder import build_feature_matrix
 from src.models.persistence import load_model
+from src.models.ensemble import create_ensemble
 
 
 def calculate_score(y_true, y_pred):
@@ -24,16 +25,11 @@ def calculate_score(y_true, y_pred):
 
 
 def evaluate(input_file, model_path, bot_ids=None):
-    bundle = load_model(model_path)
+    # Load model, threshold, vectorizer, and TF-IDF scorer
+    model, threshold, vectorizer, tfidf_scorer = load_model(model_path)
 
-    # Supporte deux formats :
-    # - ancien format : le modèle directement
-    # - nouveau format : dict {"model": ..., "threshold": ...}
-    if isinstance(bundle, dict):
-        model = bundle["model"]
-        threshold = float(bundle.get("threshold", 0.5))
-    else:
-        model = bundle
+    # Use default threshold if not saved
+    if threshold is None:
         threshold = 0.5
 
     data = load_dataset(input_file)
@@ -52,10 +48,20 @@ def evaluate(input_file, model_path, bot_ids=None):
             }
         )
 
+    # Feature builder now derives all features from user/post data only.
     X, y_true = build_feature_matrix(all_users)
 
-    # Utiliser le seuil optimal au lieu du seuil par défaut 0.5
-    probas = model.predict_proba(X)[:, 1]
+    # Create ensemble if TF-IDF scorer available
+    ensemble = create_ensemble(model, tfidf_scorer, tfidf_weight=0.4)
+
+    # Get predictions
+    if ensemble is not None:
+        print("Using ensemble predictor (TF-IDF + XGBoost)")
+        probas = ensemble.predict_proba_batch(X, all_users)
+    else:
+        print("Using XGBoost only (TF-IDF not available)")
+        probas = model.predict_proba(X)[:, 1]
+
     y_pred = (probas >= threshold).astype(int)
 
     bot_user_ids = [

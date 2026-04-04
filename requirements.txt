@@ -4,4 +4,4 @@ scikit-learn
 xgboost
 torch
 transformers
-git+https://github.com/ahans30/Binoculars.git
+scipy

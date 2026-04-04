@@ -39,8 +39,8 @@ def run():
 
     # Train model with threshold optimization
     print("Training model with threshold optimization...")
-    model, results, importance, optimal_threshold = train_baseline(
-        X, y, datasets_for_threshold=datasets_for_threshold
+    model, results, importance, optimal_threshold, tfidf_scorer = train_baseline(
+        X, y, datasets_for_threshold=datasets_for_threshold, all_users_data=users
     )
 
     print(f"F1: {results['test_f1'].mean():.3f}")
@@ -89,7 +89,7 @@ def run():
         print(f"Validation Recall: {val_recall:.3f}")
         print(f"Validation Accuracy: {val_accuracy:.3f}")
 
-    # Save model with optimal threshold
+    # Save model with optimal threshold and TF-IDF scorer
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    save_model(model, MODEL_PATH, threshold=optimal_threshold)
-    print(f"\nModel and threshold saved to {MODEL_PATH}")
+    save_model(model, MODEL_PATH, threshold=optimal_threshold, tfidf_scorer=tfidf_scorer)
+    print(f"\nModel, threshold, and TF-IDF scorer saved to {MODEL_PATH}")

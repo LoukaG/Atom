@@ -1,6 +1,6 @@
 # Configuration file for the project
 DATASET_FILES = [
-    # "data/processed/posts/posts_1.json",
+    "data/processed/posts/posts_1.json",
     "data/processed/posts/posts_2.json",
     "data/processed/posts/posts_3.json",
     "data/processed/posts/posts_4.json",
@@ -11,7 +11,7 @@ DATASET_FILES = [
 
 # List of bot ID files for training and evaluation
 BOT_IDS_FILES = [
-    # "data/processed/bots/bots_1.txt",
+    "data/processed/bots/bots_1.txt",
     "data/processed/bots/bots_2.txt",
     "data/processed/bots/bots_3.txt",
     "data/processed/bots/bots_4.txt",
