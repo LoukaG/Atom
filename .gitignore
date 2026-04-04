@@ -8,7 +8,7 @@ __pycache__/
 
 # Models
 *.pkl
-models/
+models/*.pkl
 
 # Github
 .github/copilot-instructions.md
