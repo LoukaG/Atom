@@ -8,13 +8,17 @@ from src.config import DATASET_FILES, BOT_IDS_FILES, MODEL_PATH
 
 def run():
     # Load all training data
+    print("Loading training datasets...")
     bot_ids = load_all_bot_ids(BOT_IDS_FILES)
     users = load_all_datasets(DATASET_FILES, bot_ids)
+    print(f"Loaded {len(users)} users from {len(DATASET_FILES)} datasets")
 
+    print("\nBuilding feature matrix...")
     X, y = build_feature_matrix(users)
+    print(f"Feature matrix shape: {X.shape[0]} users × {X.shape[1]} features")
 
     # Prepare datasets 1-6 for threshold optimization
-    print("Preparing datasets for threshold optimization...")
+    print("\nPreparing datasets for threshold optimization...")
     datasets_for_threshold = []
     for i in range(6):  # Use datasets 0-5 (files 1-6)
         dataset_path = DATASET_FILES[i]
@@ -38,20 +42,20 @@ def run():
         datasets_for_threshold.append((X_dataset, y_dataset))
 
     # Train model with threshold optimization
-    print("Training model with threshold optimization...")
+    print("\nTraining XGBoost model...")
     model, results, importance, optimal_threshold, tfidf_scorer = train_baseline(
         X, y, datasets_for_threshold=datasets_for_threshold, all_users_data=users
     )
 
-    print(f"F1: {results['test_f1'].mean():.3f}")
-    print(f"\nOptimal threshold: {optimal_threshold:.3f}")
+    print(f"\nCross-validation F1 score: {results['test_f1'].mean():.3f}")
+    print(f"Optimal threshold: {optimal_threshold:.3f}")
     print("\nTop features:")
     print(importance.head(10))
 
     # Validate on dataset 7 (held-out)
     if len(DATASET_FILES) > 6:
         print("\n" + "="*50)
-        print("Validation on held-out dataset 7:")
+        print("Validating on held-out dataset 7...")
         print("="*50)
         
         data = load_dataset(DATASET_FILES[6])
@@ -90,6 +94,7 @@ def run():
         print(f"Validation Accuracy: {val_accuracy:.3f}")
 
     # Save model with optimal threshold and TF-IDF scorer
+    print("\nSaving model...")
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     save_model(model, MODEL_PATH, threshold=optimal_threshold, tfidf_scorer=tfidf_scorer)
-    print(f"\nModel, threshold, and TF-IDF scorer saved to {MODEL_PATH}")
+    print(f"Model saved to {MODEL_PATH}")

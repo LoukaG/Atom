@@ -35,6 +35,7 @@ def extract_features(user_data):
 
 
 def build_feature_matrix(all_users):
+    print(f"Extracting features from {len(all_users)} users...")
     rows = [extract_features(u) for u in all_users]
     labels = [u["label"] for u in all_users]
 

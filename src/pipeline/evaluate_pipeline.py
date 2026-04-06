@@ -26,12 +26,14 @@ def calculate_score(y_true, y_pred):
 
 def evaluate(input_file, model_path, bot_ids=None):
     # Load model, threshold, vectorizer, and TF-IDF scorer
+    print("Loading model...")
     model, threshold, vectorizer, tfidf_scorer = load_model(model_path)
 
     # Use default threshold if not saved
     if threshold is None:
         threshold = 0.5
 
+    print("Loading dataset...")
     data = load_dataset(input_file)
     users = data["users"]
     posts_by_user = group_posts_by_user(data["posts"])
@@ -47,14 +49,17 @@ def evaluate(input_file, model_path, bot_ids=None):
                 "label": label,
             }
         )
+    print(f"Loaded {len(all_users)} users")
 
     # Feature builder now derives all features from user/post data only.
+    print("\nExtracting features...")
     X, y_true = build_feature_matrix(all_users)
 
     # Create ensemble if TF-IDF scorer available
     ensemble = create_ensemble(model, tfidf_scorer, tfidf_weight=0.4)
 
     # Get predictions
+    print("Generating predictions...")
     if ensemble is not None:
         print("Using ensemble predictor (TF-IDF + XGBoost)")
         probas = ensemble.predict_proba_batch(X, all_users)

@@ -34,7 +34,8 @@ def group_posts_by_user(posts):
 def load_all_datasets(paths, bot_ids):
     all_users = []
 
-    for path in paths:
+    for idx, path in enumerate(paths, 1):
+        print(f"Loading dataset {idx}/{len(paths)}...")
         data = load_dataset(path)
         users = data["users"]
         posts_by_user = group_posts_by_user(data["posts"])

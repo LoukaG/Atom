@@ -29,16 +29,6 @@ def _clear_gpu_cache():
         torch.cuda.synchronize()
 
 
-def _log_gpu_memory(prefix=""):
-    """Log current GPU memory usage."""
-    if torch.cuda.is_available():
-        allocated = torch.cuda.memory_allocated(0) / 1024**3
-        reserved = torch.cuda.memory_reserved(0) / 1024**3
-        print(
-            f"{prefix}GPU memory - Allocated: {allocated:.2f} GB, Reserved: {reserved:.2f} GB"
-        )
-
-
 def _get_model():
     """Get or create the global AI text classifier."""
     global _model, _tokenizer
@@ -63,7 +53,6 @@ def _get_model():
 
             if device == "cuda":
                 _clear_gpu_cache()
-                _log_gpu_memory("After model loading: ")
 
         except Exception as e:
             print(f"ERROR: Failed to initialize AI detection model: {e}")
@@ -150,8 +139,6 @@ def average_ai_score(texts, batch_size=16):
 
     scores = []
 
-    _log_gpu_memory("Before AI scoring - ")
-
     try:
         model, tokenizer = _get_model()
         device = next(model.parameters()).device
@@ -195,9 +182,6 @@ def average_ai_score(texts, batch_size=16):
                 else:
                     raise
 
-            if (i + batch_size) % (batch_size * 4) == 0:  # Log every 4 batches
-                _log_gpu_memory(f"After batch {i // batch_size + 1} - ")
-
     except Exception as e:
         print(f"Warning: Batch AI detection failed: {e}")
         _clear_gpu_cache()
@@ -210,7 +194,5 @@ def average_ai_score(texts, batch_size=16):
                     scores.append(score)
             except:
                 continue
-
-    _log_gpu_memory("After AI scoring - ")
 
     return float(np.mean(scores)) if scores else 0.0

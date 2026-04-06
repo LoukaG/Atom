@@ -35,10 +35,12 @@ def train_baseline(X, y, datasets_for_threshold=None, all_users_data=None):
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
+    print("Running 5-fold cross-validation...")
     results = cross_validate(
         model, X, y, cv=cv, scoring=["f1", "precision", "recall", "accuracy"]
     )
 
+    print("Training final model on all data...")
     model.fit(X, y)
 
     importance = pd.Series(model.feature_importances_, index=X.columns).sort_values(
@@ -47,15 +49,17 @@ def train_baseline(X, y, datasets_for_threshold=None, all_users_data=None):
     
     optimal_threshold = None
     if datasets_for_threshold is not None:
+        print("Optimizing classification threshold...")
         optimal_threshold, threshold_results = find_optimal_threshold(
             model, datasets_for_threshold
         )
+        print(f"Threshold optimization complete!")
     
     # Train TF-IDF scorer if data provided
     tfidf_scorer = None
     if all_users_data is not None:
-        print("\nTraining TF-IDF scorer...")
+        print("Training TF-IDF scorer...")
         tfidf_scorer = train_tfidf_scorer(all_users_data, y, max_features=5000)
-        print("TF-IDF scorer trained successfully!")
+        print("TF-IDF scorer trained!")
 
     return model, results, importance, optimal_threshold, tfidf_scorer
